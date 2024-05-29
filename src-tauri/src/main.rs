@@ -1,9 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use beijing_bus_transfer_system::dbaccess;
+use tauri::AppHandle;
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
+fn greet(app_handle: AppHandle, name: &str) -> String {
+    let db_path = app_handle
+        .path_resolver()
+        .resolve_resource("_up_/bus-data/bus.db")
+        .expect("failed to resolve resource");
+    let _ = dbaccess::connect_db(db_path);
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 

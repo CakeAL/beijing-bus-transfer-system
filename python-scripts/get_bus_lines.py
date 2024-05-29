@@ -35,8 +35,9 @@ def get_lines_with_directions(all_line_number):
 
 def main():
     all_line_number = get_all_line_number()
-    # all_line_number = ["1", "夜21"]
+    # # all_line_number = ["1", "夜21"]
     get_lines_with_directions(all_line_number)
+    # print(get_all_line_number())
 
 
 if __name__ == "__main__":
