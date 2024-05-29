@@ -1,7 +1,10 @@
+use rusqlite::Result;
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
 };
+
+use crate::dbaccess::{connect_db, get_bus_numbers, get_stop_to_lines, get_stops};
 
 type StopName = String;
 
@@ -46,12 +49,16 @@ pub struct BusNumber {
 // }
 
 impl AppState {
-    pub fn new(db_path: PathBuf) -> Self {
-        AppState {
+    pub fn new(db_path: PathBuf) -> Result<Self> {
+        let conn = connect_db(db_path.clone())?;
+        let bus_numbers = get_bus_numbers(&conn)?;
+        let stop_to_lines = get_stop_to_lines(&conn)?;
+        let stops = get_stops(&conn)?;
+        Ok(AppState {
             db_path,
-            bus_numbers: vec![],
-            stop_to_lines: HashMap::new(),
-            stops: HashMap::new(),
-        }
+            bus_numbers,
+            stop_to_lines,
+            stops,
+        })
     }
 }

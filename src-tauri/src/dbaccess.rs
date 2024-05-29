@@ -14,7 +14,7 @@ pub fn connect_db(db_path: PathBuf) -> Result<Connection> {
     //     .resolve_resource("_up_/bus-data/bus.db")
     //     .expect("failed to resolve resource");
     dbg!(db_path.clone());
-    Ok(Connection::open(db_path)?)
+    Connection::open(db_path)
     // let conn = Connection::open(db_path)?;
     // let mut stmt = conn.prepare("select * from bus_number where 线路号=10")?;
     // let bus_iter = stmt.query_map([], |row| {
@@ -49,7 +49,6 @@ pub fn get_bus_numbers(conn: &Connection) -> Result<Vec<BusNumber>> {
                 terminal_stop: row.get(4)?,
             })
         })?
-        .into_iter()
         .map(|bus_number| bus_number.unwrap())
         .collect::<Vec<BusNumber>>();
     Ok(bus_vec)
@@ -72,7 +71,6 @@ pub fn get_stop_to_lines(conn: &Connection) -> Result<HashMap<StopName, Vec<Line
                     .collect::<Vec<Line>>(),
             ))
         })?
-        .into_iter()
         .map(|stop| stop.unwrap())
         .collect::<HashMap<StopName, Vec<Line>>>();
     Ok(stops_vec)
@@ -91,12 +89,11 @@ pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, HashSet<(u8, StopNam
         );
         Ok((line, (row.get::<_, u8>(2)?, row.get::<_, String>(3)?)))
     })?
-    .into_iter()
     .for_each(|stop| {
         let stop = stop.unwrap();
         stops
             .entry(stop.0)
-            .or_insert_with(HashSet::new)
+            .or_default()
             .insert(stop.1);
     });
     Ok(stops)
