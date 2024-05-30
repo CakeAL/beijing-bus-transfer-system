@@ -6,7 +6,7 @@ use std::{
 
 use crate::dbaccess::{connect_db, get_bus_numbers, get_stop_to_lines, get_stops};
 
-type StopName = String;
+pub type StopName = String;
 
 #[derive(Debug)]
 pub struct AppState {

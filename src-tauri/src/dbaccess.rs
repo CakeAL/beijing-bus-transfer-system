@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-type StopName = String;
+use crate::entities::StopName;
 
 // app_handle: AppHandle
 pub fn connect_db(db_path: PathBuf) -> Result<Connection> {
