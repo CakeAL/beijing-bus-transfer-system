@@ -12,8 +12,8 @@ type StopName = String;
 pub struct AppState {
     pub db_path: PathBuf,
     pub bus_numbers: Vec<BusNumber>,
-    pub stop_to_lines: HashMap<StopName, Vec<Line>>,
-    pub stops: HashMap<Line, HashSet<(u8, StopName)>>,
+    pub stop_to_lines: HashMap<StopName, HashSet<Line>>,
+    pub stops: HashMap<Line, Vec<(u8, StopName)>>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]

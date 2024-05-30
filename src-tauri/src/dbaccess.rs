@@ -54,7 +54,7 @@ pub fn get_bus_numbers(conn: &Connection) -> Result<Vec<BusNumber>> {
     Ok(bus_vec)
 }
 
-pub fn get_stop_to_lines(conn: &Connection) -> Result<HashMap<StopName, Vec<Line>>> {
+pub fn get_stop_to_lines(conn: &Connection) -> Result<HashMap<StopName, HashSet<Line>>> {
     let mut stmt = conn.prepare("select * from stop_to_lines")?;
     let stops_vec = stmt
         .query_map([], |row| {
@@ -68,17 +68,17 @@ pub fn get_stop_to_lines(conn: &Connection) -> Result<HashMap<StopName, Vec<Line
                         '1' => Line(s[0..s.len() - 3].to_string(), Direction::Down),
                         _ => Line(s[0..s.len() - 3].to_string(), Direction::Up),
                     })
-                    .collect::<Vec<Line>>(),
+                    .collect::<HashSet<Line>>(),
             ))
         })?
         .map(|stop| stop.unwrap())
-        .collect::<HashMap<StopName, Vec<Line>>>();
+        .collect::<HashMap<StopName, HashSet<Line>>>();
     Ok(stops_vec)
 }
 
-pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, HashSet<(u8, StopName)>>> {
+pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, Vec<(u8, StopName)>>> {
     let mut stmt = conn.prepare("select * from stops")?;
-    let mut stops: HashMap<Line, HashSet<(u8, StopName)>> = HashMap::new();
+    let mut stops: HashMap<Line, Vec<(u8, StopName)>> = HashMap::new();
     stmt.query_map([], |row| {
         let line = Line(
             row.get(0)?,
@@ -91,10 +91,7 @@ pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, HashSet<(u8, StopNam
     })?
     .for_each(|stop| {
         let stop = stop.unwrap();
-        stops
-            .entry(stop.0)
-            .or_default()
-            .insert(stop.1);
+        stops.entry(stop.0).or_default().push(stop.1);
     });
     Ok(stops)
 }
@@ -151,7 +148,7 @@ mod tests {
         let db_path = PathBuf::from("/Users/cakeal/Desktop/vsc/beijing-bus-transfer-system/src-tauri/target/debug/_up_/bus-data/bus.db");
         let conn = connect_db(db_path).unwrap();
         let stops_line = get_stop_to_lines(&conn).unwrap();
-        dbg!(&stops_line["地铁天通苑北站"]);
+        dbg!(&stops_line["地铁天通苑北站南"]);
     }
 
     #[test]
@@ -159,6 +156,6 @@ mod tests {
         let db_path = PathBuf::from("/Users/cakeal/Desktop/vsc/beijing-bus-transfer-system/src-tauri/target/debug/_up_/bus-data/bus.db");
         let conn = connect_db(db_path).unwrap();
         let line_stops = get_stops(&conn).unwrap();
-        dbg!(&line_stops[&Line("通勤海子角".to_string(), Direction::Up)]);
+        dbg!(&line_stops[&Line("特19".to_string(), Direction::Up)]);
     }
 }
