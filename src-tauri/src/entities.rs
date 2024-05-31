@@ -16,13 +16,13 @@ pub struct AppState {
     pub stops: HashMap<Line, Vec<(u8, StopName)>>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum Direction {
     Up,
     Down,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Line(pub String, pub Direction);
 
 #[derive(Debug)]
