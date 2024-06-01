@@ -18,13 +18,18 @@
       },
       "fs": {
         "scope": ["$RESOURCE/bus-data/*"]
+      },
+      "window": {
+        "minimize": true
       }
     },
     "windows": [
       {
-        "title": "beijing-bus-transfer-system",
+        "title": "北京公交换乘系统 by: @CakeAL",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "minHeight": 600,
+        "minWidth": 800
       }
     ],
     "security": {
