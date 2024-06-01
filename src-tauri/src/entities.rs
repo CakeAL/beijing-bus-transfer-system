@@ -68,7 +68,7 @@ impl Display for Line {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}({})",
+            "{} ( {} ) ",
             self.0,
             match self.1 {
                 Direction::Down => "下行",
