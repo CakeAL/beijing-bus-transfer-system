@@ -1,6 +1,7 @@
 use rusqlite::Result;
 use std::{
     collections::{HashMap, HashSet},
+    fmt::Display,
     path::PathBuf,
 };
 
@@ -33,14 +34,14 @@ pub struct BusNumber {
     pub terminal_stop: String,
 }
 
-// 更换为HashMap
+// 更换为HashMap + HashSet
 // #[derive(Debug)]
 // pub struct StopToLines {
 //     pub stop_name: String,
 //     pub lines: Vec<Line>,
 // }
 
-// 更换为HashMap + HashSet
+// 更换为HashMap + Vec
 // #[derive(Debug)]
 // pub struct Stops {
 //     pub line: Line,
@@ -60,5 +61,19 @@ impl AppState {
             stop_to_lines,
             stops,
         })
+    }
+}
+
+impl Display for Line {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}({})",
+            self.0,
+            match self.1 {
+                Direction::Down => "下行",
+                Direction::Up => "上行",
+            }
+        )
     }
 }

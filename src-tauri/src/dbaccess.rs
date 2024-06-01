@@ -96,13 +96,54 @@ pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, Vec<(u8, StopName)>>
     Ok(stops)
 }
 
+pub fn get_stops_name_by_keywords(conn: &Connection, keyword: &str) -> Result<Vec<StopName>> {
+    let mut stmt = conn.prepare(
+        format!(
+            "select 站名 from stop_to_lines where 站名 like '%{}%'",
+            keyword
+        )
+        .as_str(),
+    )?;
+    let stops_name = stmt
+        .query_map([], |row| row.get::<_, String>(0))?
+        .map(|stop_name| stop_name.unwrap_or_default())
+        .collect();
+    Ok(stops_name)
+}
+
+pub fn get_lines_name_by_keyword(conn: &Connection, keyword: &str) -> Result<Vec<Line>> {
+    let mut stmt = conn.prepare(
+        format!(
+            "select 线路号, 方向 from bus_number where 线路号 like '%{}%'",
+            keyword
+        )
+        .as_str(),
+    )?;
+    let lines_name = stmt
+        .query_map([], |row| {
+            let line = Line(
+                row.get(0)?,
+                match row.get(1)? {
+                    0 => Direction::Up,
+                    _ => Direction::Down,
+                },
+            );
+            Ok(line)
+        })?
+        .map(|line| line.unwrap())
+        .collect();
+    Ok(lines_name)
+}
+
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;
 
     use crate::entities::{BusNumber, Direction, Line};
 
-    use super::{connect_db, get_bus_numbers, get_stop_to_lines, get_stops};
+    use super::{
+        connect_db, get_bus_numbers, get_lines_name_by_keyword, get_stop_to_lines, get_stops, get_stops_name_by_keywords
+    };
 
     #[test]
     fn test_connect_db() {
@@ -157,5 +198,23 @@ mod tests {
         let conn = connect_db(db_path).unwrap();
         let line_stops = get_stops(&conn).unwrap();
         dbg!(&line_stops[&Line("特19".to_string(), Direction::Up)]);
+    }
+
+    #[test]
+    fn test_get_stops_name_by_keywords() {
+        let db_path = PathBuf::from("/Users/cakeal/Desktop/vsc/beijing-bus-transfer-system/src-tauri/target/debug/_up_/bus-data/bus.db");
+        let conn = connect_db(db_path).unwrap();
+        let res = get_stops_name_by_keywords(&conn, "西口").unwrap();
+        let json = serde_json::json!(res);
+        dbg!(json.to_string());
+        // dbg!(res);
+    }
+
+    #[test]
+    fn test_get_lines_name_by_keyword() {
+        let db_path = PathBuf::from("/Users/cakeal/Desktop/vsc/beijing-bus-transfer-system/src-tauri/target/debug/_up_/bus-data/bus.db");
+        let conn = connect_db(db_path).unwrap();
+        let res = get_lines_name_by_keyword(&conn, "1").unwrap();
+        dbg!(res);
     }
 }
