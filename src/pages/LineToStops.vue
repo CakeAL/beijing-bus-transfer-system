@@ -11,7 +11,8 @@ interface LineName {
 const select_line = ref("");
 const lines_name = ref<Array<string>>([]);
 const options = ref<Array<LineName>>([]);
-const line_stops = ref({});
+const line_stops = ref([]);
+const card_title = ref("");
 
 onMounted(() => {
   // 挂载时获取一次数据
@@ -47,7 +48,11 @@ const get_line_stops = async () => {
     direction: dir,
   }).catch((err) => console.log(err))) as string;
   line_stops.value = JSON.parse(result);
-  //   console.log(line_stops.value);
+  // console.log(line_stops.value);
+  card_title.value =
+    line_stops.value[0][1] +
+    " —— " +
+    line_stops.value[line_stops.value.length - 1][1];
 };
 </script>
 
@@ -68,7 +73,7 @@ const get_line_stops = async () => {
     <!-- <n-button strong secondary round type="primary" @click="get_line_stops">
       查！
     </n-button> -->
-    <n-card class="show-stops" hoverable>
+    <n-card class="show-stops" hoverable :title="card_title">
       <n-timeline>
         <n-timeline-item
           v-for="(stop, index) in line_stops"
@@ -83,13 +88,12 @@ const get_line_stops = async () => {
 </template>
 
 <style scoped>
-
 .container {
-    padding: 15px;
+  padding: 15px;
 }
 
 .show-stops {
-    height: 60vh;
+  height: 60vh;
   overflow: auto;
   margin-top: 15px;
 }
