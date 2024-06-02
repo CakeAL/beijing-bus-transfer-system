@@ -26,7 +26,10 @@ pub fn search_lines_name(state: tauri::State<AppState>, keyword: &str) -> Result
         .and_then(|conn| {
             get_lines_name_by_keyword(&conn, keyword)
                 .map(|res| {
-                    let res_str = res.iter().map(|line| line.to_string()).collect::<Vec<String>>();
+                    let res_str = res
+                        .iter()
+                        .map(|line| line.to_string())
+                        .collect::<Vec<String>>();
                     serde_json::json!(res_str).to_string()
                 })
                 .map_err(|_| "Error: get_lines_name_by_keyword error".to_string())
@@ -46,9 +49,16 @@ pub fn search_the_path(
     start: &str,
     terminal: &str,
 ) -> Result<String, String> {
+    if start.is_empty() || terminal.is_empty() {
+        return Ok("".to_string());
+    }
     let (len, path) = dijkstra(&state.stops, &state.stop_to_lines, &start.to_string());
     // 假定传进来的start和terminal都是有效的，因为前端只能从搜索中选择特定的站
-    let len = len.get(terminal).unwrap().clone().unwrap().1;
+    // 加了个同站，或者两站之间没有路径的
+    let len: u32 = match len.get(terminal) {
+        Some(Some(len)) => len.clone().1,
+        _ => 0,
+    };
     let mut path_vec: Vec<(String, String)> = vec![];
     let mut terminal_last = terminal;
     while let Some(prev_stop) = path.get(terminal_last) {
@@ -97,12 +107,6 @@ pub fn search_the_lines_stops(
             _ => Direction::Down,
         },
     );
-    let line_vec = state
-        .stops
-        .get(&line)
-        .unwrap()
-        .iter()
-        .cloned()
-        .collect::<Vec<(u8, String)>>();
+    let line_vec = state.stops.get(&line).unwrap().to_vec();
     Ok(serde_json::json!(line_vec).to_string())
 }
