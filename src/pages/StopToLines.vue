@@ -46,6 +46,7 @@ const get_stop_lines = async () => {
 
 const store_line_name = (name) => {
   store.line_name = name;
+  window.location.href = "#/line_to_stops";
 };
 </script>
 
@@ -62,16 +63,16 @@ const store_line_name = (name) => {
     </n-select>
     <n-card class="show-lines" hoverable>
       <n-space>
-        <a
+        <n-tag
+          :bordered="false"
+          type="success"
+          class="my-tag"
           v-for="(line, index) in stop_lines"
           :key="index"
-          href="'#/line_to_stops"
           @click="store_line_name(line)"
         >
-          <n-tag :bordered="false" type="success" class="my-tag">
-            {{ line }}
-          </n-tag>
-        </a>
+          {{ line }}
+        </n-tag>
       </n-space>
     </n-card>
   </div>
