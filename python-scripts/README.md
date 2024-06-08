@@ -2,7 +2,7 @@
 
 ## 创建虚拟环境
 
-> **warning**
+> [!WARNING]  
 > 首先你应该在`beijing-bus-transfer-system`文件夹下
 
 ```bash

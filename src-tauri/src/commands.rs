@@ -52,7 +52,7 @@ pub fn search_the_path(
     if start.is_empty() || terminal.is_empty() {
         return Ok("".to_string());
     }
-    let (len, path) = dijkstra(&state.stops, &state.stop_to_lines, &start.to_string());
+    let (len, path) = dijkstra(&state.stops, &state.stop_to_lines, &start.to_string(), &terminal.to_string());
     // 假定传进来的start和terminal都是有效的，因为前端只能从搜索中选择特定的站
     // 加了个同站，或者两站之间没有路径的
     let len: u32 = match len.get(terminal) {
