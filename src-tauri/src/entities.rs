@@ -13,8 +13,8 @@ pub type StopName = String;
 pub struct AppState {
     pub db_path: PathBuf,
     pub bus_numbers: Vec<BusNumber>,
-    pub stop_to_lines: HashMap<StopName, HashSet<Line>>,
-    pub stops: HashMap<Line, Vec<(u8, StopName)>>,
+    pub stop_to_lines: &'static HashMap<StopName, HashSet<Line>>,
+    pub stops: &'static HashMap<Line, Vec<(u8, StopName)>>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -53,8 +53,8 @@ impl AppState {
     pub fn new(db_path: PathBuf) -> Result<Self> {
         let conn = connect_db(db_path.clone())?;
         let bus_numbers = get_bus_numbers(&conn)?;
-        let stop_to_lines = get_stop_to_lines(&conn)?;
-        let stops = get_stops(&conn)?;
+        let stop_to_lines = &get_stop_to_lines(&conn)?;
+        let stops = &get_stops(&conn)?;
         Ok(AppState {
             db_path,
             bus_numbers,

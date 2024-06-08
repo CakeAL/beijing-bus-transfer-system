@@ -54,7 +54,7 @@ pub fn get_bus_numbers(conn: &Connection) -> Result<Vec<BusNumber>> {
     Ok(bus_vec)
 }
 
-pub fn get_stop_to_lines(conn: &Connection) -> Result<HashMap<StopName, HashSet<Line>>> {
+pub fn get_stop_to_lines(conn: &Connection) -> Result<&'static HashMap<StopName, HashSet<Line>>> {
     let mut stmt = conn.prepare("select * from stop_to_lines")?;
     let stops_vec = stmt
         .query_map([], |row| {
@@ -73,10 +73,10 @@ pub fn get_stop_to_lines(conn: &Connection) -> Result<HashMap<StopName, HashSet<
         })?
         .map(|stop| stop.unwrap())
         .collect::<HashMap<StopName, HashSet<Line>>>();
-    Ok(stops_vec)
+    Ok(Box::leak(Box::new(stops_vec)))
 }
 
-pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, Vec<(u8, StopName)>>> {
+pub fn get_stops(conn: &Connection) -> Result<&'static HashMap<Line, Vec<(u8, StopName)>>> {
     let mut stmt = conn.prepare("select * from stops")?;
     let mut stops: HashMap<Line, Vec<(u8, StopName)>> = HashMap::new();
     stmt.query_map([], |row| {
@@ -93,7 +93,7 @@ pub fn get_stops(conn: &Connection) -> Result<HashMap<Line, Vec<(u8, StopName)>>
         let stop = stop.unwrap();
         stops.entry(stop.0).or_default().push(stop.1);
     });
-    Ok(stops)
+    Ok(Box::leak(Box::new(stops)))
 }
 
 pub fn get_stops_name_by_keywords(conn: &Connection, keyword: &str) -> Result<Vec<StopName>> {
