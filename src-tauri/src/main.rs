@@ -21,7 +21,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             search_stops_name,
             search_lines_name,
-            search_the_path,
+            search_the_shortest_path,
+            search_the_min_transfer_path,
             search_the_stops_lines,
             search_the_lines_stops,
         ])

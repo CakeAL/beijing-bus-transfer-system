@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    algorithm::dijkstra,
+    algorithm::{dijkstra, improved_dijkstra},
     dbaccess::{connect_db, get_lines_name_by_keyword, get_stops_name_by_keywords},
     entities::{AppState, Direction, Line},
 };
@@ -44,33 +44,71 @@ struct BusPath {
 
 // 找始发站和最短路径，返回length为乘坐的站数，path_vec为路径
 #[tauri::command]
-pub fn search_the_path(
+pub fn search_the_shortest_path(
     state: tauri::State<AppState>,
     start: &str,
-    terminal: &str,
+    target: &str,
 ) -> Result<String, String> {
-    if start.is_empty() || terminal.is_empty() {
+    if start.is_empty() || target.is_empty() {
         return Ok("".to_string());
     }
-    let (len, path) = dijkstra(&state.stops, &state.stop_to_lines, &start.to_string(), &terminal.to_string());
-    // 假定传进来的start和terminal都是有效的，因为前端只能从搜索中选择特定的站
+    let (len, path) = dijkstra(
+        &state.stops,
+        &state.stop_to_lines,
+        &start.to_string(),
+        &target.to_string(),
+    );
+    // 假定传进来的start和target都是有效的，因为前端只能从搜索中选择特定的站
     // 加了个同站，或者两站之间没有路径的
-    let len: u32 = match len.get(terminal) {
+    let len: u32 = match len.get(target) {
         Some(Some(len)) => len.clone().1,
         _ => 0,
     };
     let mut path_vec: Vec<(String, String)> = vec![];
-    let mut terminal_last = terminal;
-    while let Some(prev_stop) = path.get(terminal_last) {
+    let mut target_last = target;
+    while let Some(prev_stop) = path.get(target_last) {
         if prev_stop.1.as_str() == start {
             break;
         }
         path_vec.push((prev_stop.0.to_string(), prev_stop.1.clone()));
-        terminal_last = prev_stop.1.as_str();
+        target_last = prev_stop.1.as_str();
     }
     path_vec.reverse();
     let bus_path = BusPath {
         length: len,
+        path_vec,
+    };
+    Ok(serde_json::json!(bus_path).to_string())
+}
+
+#[tauri::command]
+pub fn search_the_min_transfer_path(
+    state: tauri::State<AppState>,
+    start: &str,
+    target: &str,
+) -> Result<String, String> {
+    if start.is_empty() || target.is_empty() {
+        return Ok("".to_string());
+    }
+    // 突然发现第一个变量没用了
+    let (_, path) = improved_dijkstra(
+        &state.stops,
+        &state.stop_to_lines,
+        &start.to_string(),
+        &target.to_string(),
+    );
+    let mut path_vec: Vec<(String, String)> = vec![];
+    let mut target_last = target;
+    while let Some(prev_stop) = path.get(target_last) {
+        if prev_stop.1.as_str() == start {
+            break;
+        }
+        path_vec.push((prev_stop.0.to_string(), prev_stop.1.clone()));
+        target_last = prev_stop.1.as_str();
+    }
+    path_vec.reverse();
+    let bus_path = BusPath {
+        length: path_vec.len() as u32,
         path_vec,
     };
     Ok(serde_json::json!(bus_path).to_string())

@@ -14,9 +14,10 @@ interface BusPath {
 }
 
 const start_stop = ref("");
-const terminal_stop = ref("");
+const target_stop = ref("");
 const options = ref<Array<StopName>>([]);
 const bus_path = ref<BusPath>({ length: 0, path_vec: [] });
+const my_switch = ref(false);
 
 onMounted(() => {
   // 挂载时获取一次数据
@@ -37,15 +38,52 @@ const get_stops = async () => {
   });
 };
 
+const handleChangeSwitch = () => {
+  if (start_stop.value === "" || target_stop.value === "") return;
+  else {
+    get_the_path();
+  }
+};
+
 const get_the_path = async () => {
-  if (start_stop.value === "" || terminal_stop.value === "") return;
-  const result = await invoke("search_the_path", {
-    start: start_stop.value,
-    terminal: terminal_stop.value,
-  }).catch((err) => console.log(err));
+  if (start_stop.value === "" || target_stop.value === "") return;
+  const result = ref<string>("");
+  if (!my_switch.value) {
+    result.value = await invoke("search_the_shortest_path", {
+      start: start_stop.value,
+      target: target_stop.value,
+    }).catch((err) => console.log(err));
+  } else {
+    result.value = await invoke("search_the_min_transfer_path", {
+      start: start_stop.value,
+      target: target_stop.value,
+    }).catch((err) => console.log(err));
+  }
   // console.log(result);
-  bus_path.value = JSON.parse(result as string);
-  console.log(bus_path.value);
+  bus_path.value = JSON.parse(result.value);
+  // console.log(bus_path.value);
+};
+
+const railStyle = ({
+  focused,
+  checked,
+}: {
+  focused: boolean;
+  checked: boolean;
+}) => {
+  const style: CSSProperties = {};
+  if (checked) {
+    style.background = "#4b9e5f";
+    if (focused) {
+      style.boxShadow = "0 0 0 2px #dbecdfff";
+    }
+  } else {
+    style.background = "#2080f0";
+    if (focused) {
+      style.boxShadow = "0 0 0 2px #2080f040";
+    }
+  }
+  return style;
 };
 </script>
 
@@ -70,7 +108,7 @@ const get_the_path = async () => {
       </n-icon>
       <n-select
         filterable
-        v-model:value="terminal_stop"
+        v-model:value="target_stop"
         placeholder="终到站"
         :options="options"
         @update:value="get_the_path"
@@ -81,6 +119,15 @@ const get_the_path = async () => {
         </template>
       </n-select>
     </div>
+    <n-switch
+      v-model:value="my_switch"
+      @update:value="handleChangeSwitch"
+      class="my-switch"
+      :rail-style="railStyle"
+    >
+      <template #checked> 最少换乘优先 </template>
+      <template #unchecked> 最小站数优先 </template>
+    </n-switch>
     <n-card
       class="show-path"
       hoverable
@@ -94,11 +141,7 @@ const get_the_path = async () => {
           :title="stop[0]"
           :content="stop[1]"
         />
-        <n-timeline-item
-          color="#dc2533"
-          title="到达"
-          :content="terminal_stop"
-        />
+        <n-timeline-item color="#dc2533" title="到达" :content="target_stop" />
       </n-timeline>
     </n-card>
   </div>
@@ -131,6 +174,10 @@ const get_the_path = async () => {
 .show-path {
   height: 60vh;
   overflow: auto;
+  margin-top: 15px;
+}
+
+.my-switch {
   margin-top: 15px;
 }
 </style>
