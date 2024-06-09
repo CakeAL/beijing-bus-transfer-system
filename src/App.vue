@@ -36,22 +36,24 @@ const currentView = computed(() => {
 </script>
 
 <template>
-  <div class="container">
-    <n-split
-      direction="horizontal"
-      style="height: 100vh"
-      max="300px"
-      min="260px"
-      default-size="260px"
-    >
-      <template #1>
-        <Menu />
-      </template>
-      <template #2>
-        <component :is="currentView" />
-      </template>
-    </n-split>
-  </div>
+  <n-loading-bar-provider>
+    <div class="container">
+      <n-split
+        direction="horizontal"
+        style="height: 100vh"
+        max="300px"
+        min="260px"
+        default-size="260px"
+      >
+        <template #1>
+          <Menu />
+        </template>
+        <template #2>
+          <component :is="currentView" />
+        </template>
+      </n-split>
+    </div>
+  </n-loading-bar-provider>
 </template>
 
 <style scoped></style>

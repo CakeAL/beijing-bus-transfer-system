@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { BusOutline, ArrowForward } from "@vicons/ionicons5";
 import { invoke } from "@tauri-apps/api";
+import { useLoadingBar } from "naive-ui";
 
 interface StopName {
   label: string;
@@ -18,6 +19,7 @@ const target_stop = ref("");
 const options = ref<Array<StopName>>([]);
 const bus_path = ref<BusPath>({ length: 0, path_vec: [] });
 const my_switch = ref(false);
+const loadingBar = useLoadingBar();
 
 onMounted(() => {
   // 挂载时获取一次数据
@@ -48,6 +50,7 @@ const handleChangeSwitch = () => {
 const get_the_path = async () => {
   if (start_stop.value === "" || target_stop.value === "") return;
   const result = ref<string>("");
+  loadingBar.start();
   if (!my_switch.value) {
     result.value = await invoke("search_the_shortest_path", {
       start: start_stop.value,
@@ -61,6 +64,7 @@ const get_the_path = async () => {
   }
   // console.log(result);
   bus_path.value = JSON.parse(result.value);
+  loadingBar.finish();
   // console.log(bus_path.value);
 };
 
@@ -129,6 +133,7 @@ const railStyle = ({
       <template #unchecked> 最小站数优先 </template>
     </n-switch>
     <n-card
+      ref="loadingBarTargetRef"
       class="show-path"
       hoverable
       :title="'共经过 ' + bus_path.length + ' 站'"

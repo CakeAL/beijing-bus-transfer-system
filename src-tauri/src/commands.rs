@@ -43,7 +43,7 @@ struct BusPath {
 }
 
 // 找始发站和最短路径，返回length为乘坐的站数，path_vec为路径
-#[tauri::command]
+#[tauri::command(async)]
 pub fn search_the_shortest_path(
     state: tauri::State<AppState>,
     start: &str,
@@ -81,7 +81,7 @@ pub fn search_the_shortest_path(
     Ok(serde_json::json!(bus_path).to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn search_the_min_transfer_path(
     state: tauri::State<AppState>,
     start: &str,
