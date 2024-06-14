@@ -40,7 +40,13 @@ const get_stops = async () => {
   });
 };
 
+// 用来禁用Switch，防止快速切换
+const disabledSwitch = ref<boolean>(false);
 const handleChangeSwitch = () => {
+  disabledSwitch.value = true; // 先设置按钮禁用
+  setTimeout(() => { // 1s 后解除
+    disabledSwitch.value = false;
+  }, 1000);
   if (start_stop.value === "" || target_stop.value === "") return;
   else {
     get_the_path();
@@ -128,6 +134,7 @@ const railStyle = ({
       @update:value="handleChangeSwitch"
       class="my-switch"
       :rail-style="railStyle"
+      :disabled="disabledSwitch"
     >
       <template #checked> 最少换乘优先 </template>
       <template #unchecked> 最小站数优先 </template>

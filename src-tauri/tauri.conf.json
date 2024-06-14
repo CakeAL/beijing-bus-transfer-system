@@ -6,8 +6,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "beijing-bus-transfer-system",
-    "version": "0.1.0"
+    "productName": "北京公交换乘系统",
+    "version": "0.2.0"
   },
   "tauri": {
     "allowlist": {

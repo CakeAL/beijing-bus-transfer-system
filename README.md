@@ -13,6 +13,7 @@
 3. 根据用户输入并选择某站查看该站所有的线路。
 4. 上述 2 和 3 可以点击对应的内容跳转到对应的线路/站点的详细信息。
 5. 因为查询耗时，所以添加了“焦虑的安慰剂，疗效尚可”的加载条。
+6. 为了防止用户疯狂点击 Switch 按钮导致后台并行计算占用过多资源，添加了 1s 的按钮禁用。
 
 ## 截图
 
@@ -26,6 +27,8 @@
 
 可以考虑使用北京公交实时公交的接口。但是那里不能一次性获得全部线路。
 
+问题：由于数据没有坐标信息，无法使用 Astar 算法来有指向性的计算最短路径。
+
 ## 构建和运行
 
 大概是 macOS，Windows 和 Linux 都能运行的。 \
@@ -34,6 +37,7 @@
 ```bash
 # 安装 tauri
 cargo install create-tauri-app --locked
+# 安装tauri 命令行 https://tauri.app/zh-cn/blog/2022/09/15/tauri-1-1/#cargo-binstall-support-for-tauri-cli
 # 运行
 cargo tauri dev
 # 或者
