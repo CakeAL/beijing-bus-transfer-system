@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { CSSProperties, onMounted, ref } from "vue";
 import { BusOutline, ArrowForward } from "@vicons/ionicons5";
 import { invoke } from "@tauri-apps/api";
 import { useLoadingBar } from "naive-ui";
@@ -61,12 +61,12 @@ const get_the_path = async () => {
     result.value = await invoke("search_the_shortest_path", {
       start: start_stop.value,
       target: target_stop.value,
-    }).catch((err) => console.log(err));
+    }).catch((err) => console.log(err)) as string;
   } else {
     result.value = await invoke("search_the_min_transfer_path", {
       start: start_stop.value,
       target: target_stop.value,
-    }).catch((err) => console.log(err));
+    }).catch((err) => console.log(err)) as string;
   }
   // console.log(result);
   bus_path.value = JSON.parse(result.value);
